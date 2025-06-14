@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Expense Tracker - Budgets</title>
+    <title>Expense Tracker - Account</title>
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
@@ -26,7 +26,7 @@
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
-            <li class="nav-item active" id="navBudgets">
+            <li class="nav-item" id="navBudgets">
                 <a class="nav-link" href="budgets.html">
                     <i class="fas fa-wallet"></i>
                     <span>Budgets</span></a>
@@ -36,7 +36,7 @@
                     <i class="fas fa-users"></i>
                     <span>Users</span></a>
             </li>
-            <li class="nav-item" id="navAccount">
+            <li class="nav-item active" id="navAccount">
                 <a class="nav-link" href="account.html">
                     <i class="fas fa-user-circle"></i>
                     <span>Account</span></a>
@@ -50,7 +50,7 @@
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-                    <h1 class="h5 mb-0">Manage Budgets</h1>
+                    <h1 class="h5 mb-0">My Account</h1>
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item">
                             <a class="nav-link" href="#" onclick="logout()">Logout</a>
@@ -60,22 +60,29 @@
                 <div class="container-fluid">
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Monthly Budget</h6>
+                            <h6 class="m-0 font-weight-bold text-primary">Profile</h6>
                         </div>
                         <div class="card-body">
-                            <form id="budgetForm">
-                                <div class="form-group">
-                                    <label for="monthlyBudget">Monthly Limit</label>
-                                    <input type="number" id="monthlyBudget" class="form-control" step="0.01">
+                            <form id="accountForm">
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <label for="accFirstName">First Name</label>
+                                        <input type="text" id="accFirstName" class="form-control">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label for="accLastName">Last Name</label>
+                                        <input type="text" id="accLastName" class="form-control">
+                                    </div>
                                 </div>
-                                <h6 class="mt-4">Category Budgets</h6>
-                                <table class="table" id="budgetTable">
-                                    <thead>
-                                        <tr><th>Category</th><th>Limit</th></tr>
-                                    </thead>
-                                    <tbody id="budgetBody"></tbody>
-                                </table>
-                                <button type="submit" class="btn btn-primary">Save Budgets</button>
+                                <div class="form-group">
+                                    <label for="accEmail">Email</label>
+                                    <input type="email" id="accEmail" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="accPassword">New Password</label>
+                                    <input type="password" id="accPassword" class="form-control" placeholder="Leave blank to keep current">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
                             </form>
                         </div>
                     </div>
@@ -101,12 +108,13 @@
     <script src="js/auth.js"></script>
     <script>
         requireAuth();
-        if (currentUser.role !== 'Admin' && currentUser.role !== 'Manager') {
-            window.location.href = 'index.html';
-        }
         if (currentUser.role !== 'Admin') {
             var u = document.getElementById('navUsers');
             if (u) u.style.display = 'none';
+        }
+        if (!(currentUser.role === 'Admin' || currentUser.role === 'Manager')) {
+            var b = document.getElementById('navBudgets');
+            if (b) b.style.display = 'none';
         }
     </script>
     <script src="js/app.js"></script>

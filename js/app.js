@@ -323,6 +323,33 @@ function saveBudgetsForm(e) {
   alert('Budgets saved');
 }
 
+function renderAccount() {
+  var f = document.getElementById('accountForm');
+  if (!f) return;
+  document.getElementById('accFirstName').value = currentUser.firstName;
+  document.getElementById('accLastName').value = currentUser.lastName;
+  document.getElementById('accEmail').value = currentUser.email;
+}
+
+function saveAccountForm(e) {
+  e.preventDefault();
+  var first = document.getElementById('accFirstName').value;
+  var last = document.getElementById('accLastName').value;
+  var email = document.getElementById('accEmail').value;
+  var pass = document.getElementById('accPassword').value;
+  var user = users.find(function(u){return u.id === currentUser.id;});
+  if (user) {
+    user.firstName = first;
+    user.lastName = last;
+    user.email = email;
+    if (pass) user.password = pass;
+    currentUser = Object.assign({}, user);
+    localStorage.setItem('loggedInUser', JSON.stringify(currentUser));
+    saveData();
+    alert('Account updated');
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   loadDemoData().then(function(){
     initData();
@@ -360,6 +387,11 @@ document.addEventListener('DOMContentLoaded', function () {
     var budgetForm = document.getElementById("budgetForm");
     if (budgetForm) {
       budgetForm.addEventListener("submit", saveBudgetsForm);
+    }
+    var accountForm = document.getElementById('accountForm');
+    if (accountForm) {
+      renderAccount();
+      accountForm.addEventListener('submit', saveAccountForm);
     }
     if (resetBtn) {
       resetBtn.addEventListener('click', resetData);
