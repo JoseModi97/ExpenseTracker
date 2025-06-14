@@ -1,30 +1,44 @@
 // Static data arrays for categories, transactions and predefined users
+var organizations = [
+  { id: 1, name: 'OrgA' },
+  { id: 2, name: 'OrgB' },
+];
+
+var roles = ['Admin', 'Manager', 'Employee', 'Auditor'];
+
 var categories = [
-  { id: 1, name: 'Rent' },
-  { id: 2, name: 'Food' },
-  { id: 3, name: 'Transport' },
-  { id: 4, name: 'Utilities' },
+  { id: 1, orgId: 1, name: 'Rent' },
+  { id: 2, orgId: 1, name: 'Food' },
+  { id: 3, orgId: 1, name: 'Transport' },
+  { id: 4, orgId: 1, name: 'Utilities' },
+  { id: 5, orgId: 2, name: 'Supplies' },
+  { id: 6, orgId: 2, name: 'Travel' },
 ];
 
 var transactions = [
-  { id: 1, date: '2023-01-05', category: 1, amount: 1200 },
-  { id: 2, date: '2023-01-07', category: 2, amount: 150 },
-  { id: 3, date: '2023-01-09', category: 3, amount: 50 },
-  { id: 4, date: '2023-02-01', category: 1, amount: 1200 },
-  { id: 5, date: '2023-02-06', category: 2, amount: 160 },
-  { id: 6, date: '2023-02-10', category: 4, amount: 80 },
+  { id: 1, orgId: 1, date: '2023-01-05', category: 1, amount: 1200, status: 'approved' },
+  { id: 2, orgId: 1, date: '2023-01-07', category: 2, amount: 150, status: 'approved' },
+  { id: 3, orgId: 1, date: '2023-01-09', category: 3, amount: 50, status: 'approved' },
+  { id: 4, orgId: 1, date: '2023-02-01', category: 1, amount: 1200, status: 'pending' },
+  { id: 5, orgId: 2, date: '2023-02-06', category: 5, amount: 300, status: 'approved' },
+  { id: 6, orgId: 2, date: '2023-02-10', category: 6, amount: 80, status: 'pending' },
 ];
 
 var budgets = {
-  monthly: 2000,
-  categories: {
-    1: 1500,
-    2: 500,
-    3: 200,
-    4: 300
+  1: {
+    monthly: 2000,
+    categories: { 1: 1500, 2: 500, 3: 200, 4: 300 }
+  },
+  2: {
+    monthly: 1800,
+    categories: { 5: 1000, 6: 400 }
   }
 };
 
 var users = [
-  { email: 'admin@example.com', password: 'admin' }
+  { email: 'admin@orga.com', password: 'admin', firstName: 'Alice', lastName: 'Admin', orgId: 1, role: 'Admin' },
+  { email: 'manager@orga.com', password: 'manager', firstName: 'Mark', lastName: 'Manager', orgId: 1, role: 'Manager' },
+  { email: 'employee@orga.com', password: 'employee', firstName: 'Eve', lastName: 'Employee', orgId: 1, role: 'Employee' },
+  { email: 'auditor@orga.com', password: 'auditor', firstName: 'Ann', lastName: 'Auditor', orgId: 1, role: 'Auditor' },
+  { email: 'admin@orgb.com', password: 'admin', firstName: 'Bob', lastName: 'Admin', orgId: 2, role: 'Admin' }
 ];

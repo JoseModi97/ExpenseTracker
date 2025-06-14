@@ -6,8 +6,9 @@ var pieChart;
 function renderPieChart(dataSet){
   var ctx = document.getElementById("myPieChart");
   if(pieChart) pieChart.destroy();
-  var categoryLabels = categories.map(function(c){return c.name;});
-  var categoryTotals = categories.map(function(c){
+  var orgCategories = categories.filter(function(c){return c.orgId === currentUser.orgId;});
+  var categoryLabels = orgCategories.map(function(c){return c.name;});
+  var categoryTotals = orgCategories.map(function(c){
     return dataSet.filter(function(t){return t.category === c.id;})
       .reduce(function(sum, t){return sum + t.amount;}, 0);
   });
@@ -43,7 +44,8 @@ function renderPieChart(dataSet){
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-  if (typeof transactions !== 'undefined') {
-    renderPieChart(transactions);
+  if (typeof transactions !== 'undefined' && typeof currentUser !== 'undefined') {
+    var data = transactions.filter(function(t){return t.orgId === currentUser.orgId;});
+    renderPieChart(data);
   }
 });

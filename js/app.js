@@ -19,7 +19,7 @@ function renderCategoryOptions() {
   var select = document.getElementById('transCategory');
   if (!select) return;
   select.innerHTML = '';
-  categories.forEach(function (c) {
+  categories.filter(function(c){return c.orgId === currentUser.orgId;}).forEach(function (c) {
     var opt = document.createElement('option');
     opt.value = c.id;
     opt.textContent = c.name;
@@ -31,17 +31,19 @@ function renderCategories() {
   var list = document.getElementById('categoryList');
   if (!list) return;
   list.innerHTML = '';
-  categories.forEach(function (c) {
+  categories.filter(function(c){return c.orgId === currentUser.orgId;}).forEach(function (c) {
     var li = document.createElement('li');
     li.className = 'list-group-item d-flex justify-content-between align-items-center';
     li.textContent = c.name;
-    var btn = document.createElement('button');
-    btn.className = 'btn btn-sm btn-danger';
-    btn.textContent = 'Delete';
-    btn.addEventListener('click', function () {
-      deleteCategory(c.id);
-    });
-    li.appendChild(btn);
+    if (currentUser.role === 'Admin' || currentUser.role === 'Manager') {
+      var btn = document.createElement('button');
+      btn.className = 'btn btn-sm btn-danger';
+      btn.textContent = 'Delete';
+      btn.addEventListener('click', function () {
+        deleteCategory(c.id);
+      });
+      li.appendChild(btn);
+    }
     list.appendChild(li);
   });
 }
@@ -49,7 +51,7 @@ function renderCategories() {
 function renderTransactions(data) {
   var tbody = document.querySelector('#transactionTable tbody');
   tbody.innerHTML = '';
-  (data || transactions).forEach(function (t) {
+  (data || transactions).filter(function(t){return t.orgId === currentUser.orgId;}).forEach(function (t) {
     var tr = document.createElement('tr');
     var tdDate = document.createElement('td');
     tdDate.textContent = new Date(t.date).toLocaleDateString();
@@ -58,17 +60,32 @@ function renderTransactions(data) {
     tdCat.textContent = cat ? cat.name : '';
     var tdAmt = document.createElement('td');
     tdAmt.textContent = '$' + t.amount.toFixed(2);
+    var tdStatus = document.createElement('td');
+    tdStatus.textContent = t.status;
     var tdDel = document.createElement('td');
-    var btn = document.createElement('button');
-    btn.className = 'btn btn-sm btn-danger';
-    btn.textContent = 'Delete';
-    btn.addEventListener('click', function () {
-      deleteTransaction(t.id);
-    });
-    tdDel.appendChild(btn);
+    if ((currentUser.role === 'Admin' || currentUser.role === 'Manager') && t.status !== 'pending') {
+      var delBtn = document.createElement('button');
+      delBtn.className = 'btn btn-sm btn-danger mr-2';
+      delBtn.textContent = 'Delete';
+      delBtn.addEventListener('click', function () { deleteTransaction(t.id); });
+      tdDel.appendChild(delBtn);
+    }
+    if (t.status === 'pending' && (currentUser.role === 'Admin' || currentUser.role === 'Manager')) {
+      var appBtn = document.createElement('button');
+      appBtn.className = 'btn btn-sm btn-success mr-1';
+      appBtn.textContent = 'Approve';
+      appBtn.addEventListener('click', function(){ approveTransaction(t.id, 'approved');});
+      var rejBtn = document.createElement('button');
+      rejBtn.className = 'btn btn-sm btn-warning';
+      rejBtn.textContent = 'Reject';
+      rejBtn.addEventListener('click', function(){ approveTransaction(t.id, 'rejected');});
+      tdDel.appendChild(appBtn);
+      tdDel.appendChild(rejBtn);
+    }
     tr.appendChild(tdDate);
     tr.appendChild(tdCat);
     tr.appendChild(tdAmt);
+    tr.appendChild(tdStatus);
     tr.appendChild(tdDel);
     tbody.appendChild(tr);
   });
@@ -76,7 +93,7 @@ function renderTransactions(data) {
 
 function addTransaction(date, categoryId, amount) {
   var id = transactions.length ? transactions[transactions.length - 1].id + 1 : 1;
-  transactions.push({ id: id, date: date, category: parseInt(categoryId), amount: parseFloat(amount) });
+  transactions.push({ id: id, orgId: currentUser.orgId, date: date, category: parseInt(categoryId), amount: parseFloat(amount), status: 'pending' });
   saveData();
   checkBudgets(date, categoryId);
   applyFilters();
@@ -88,9 +105,18 @@ function deleteTransaction(id) {
   applyFilters();
 }
 
+function approveTransaction(id, status) {
+  var tx = transactions.find(function(t){return t.id === id;});
+  if (tx) {
+    tx.status = status;
+    saveData();
+    applyFilters();
+  }
+}
+
 function addCategory(name) {
   var id = categories.length ? categories[categories.length - 1].id + 1 : 1;
-  categories.push({ id: id, name: name });
+  categories.push({ id: id, orgId: currentUser.orgId, name: name });
   saveData();
   renderCategoryOptions();
   renderCategories();
@@ -111,6 +137,7 @@ function applyFilters() {
   var start = startVal ? new Date(startVal) : null;
   var end = endVal ? new Date(endVal) : null;
   var filtered = transactions.filter(function (t) {
+    if (t.orgId !== currentUser.orgId) return false;
     var tDate = new Date(t.date);
     if (start && tDate < start) return false;
     if (end && tDate > end) return false;
@@ -123,14 +150,14 @@ function applyFilters() {
 
 function checkBudgets(date, categoryId) {
   var month = date.slice(0, 7);
-  var monthlyTotal = transactions.filter(function (t) { return t.date.slice(0, 7) === month; })
+  var monthlyTotal = transactions.filter(function (t) { return t.orgId === currentUser.orgId && t.date.slice(0, 7) === month && t.status !== 'rejected'; })
     .reduce(function (s, t) { return s + t.amount; }, 0);
-  if (monthlyTotal > budgets.monthly) {
+  if (monthlyTotal > budgets[currentUser.orgId].monthly) {
     alert('Monthly budget exceeded!');
   }
-  var catTotal = transactions.filter(function (t) { return t.category === parseInt(categoryId) && t.date.slice(0, 7) === month; })
+  var catTotal = transactions.filter(function (t) { return t.orgId === currentUser.orgId && t.category === parseInt(categoryId) && t.date.slice(0, 7) === month && t.status !== 'rejected'; })
     .reduce(function (s, t) { return s + t.amount; }, 0);
-  var limit = budgets.categories[categoryId];
+  var limit = budgets[currentUser.orgId].categories[categoryId];
   if (limit && catTotal > limit) {
     alert('Budget for category exceeded!');
   }

@@ -126,7 +126,8 @@ function renderAreaChart(dataSet) {
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-  if (typeof transactions !== 'undefined') {
-    renderAreaChart(transactions);
+  if (typeof transactions !== 'undefined' && typeof currentUser !== 'undefined') {
+    var data = transactions.filter(function(t){return t.orgId === currentUser.orgId;});
+    renderAreaChart(data);
   }
 });
