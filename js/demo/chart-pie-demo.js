@@ -4,14 +4,19 @@ Chart.defaults.global.defaultFontColor = '#858796';
 
 // Pie Chart Example
 var ctx = document.getElementById("myPieChart");
+var categoryLabels = categories.map(function(c){return c.name;});
+var categoryTotals = categories.map(function(c){
+  return transactions.filter(function(t){return t.category === c.id;})
+    .reduce(function(sum, t){return sum + t.amount;}, 0);
+});
 var myPieChart = new Chart(ctx, {
   type: 'doughnut',
   data: {
-    labels: ["Direct", "Referral", "Social"],
+    labels: categoryLabels,
     datasets: [{
-      data: [55, 30, 15],
-      backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'],
-      hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
+      data: categoryTotals,
+      backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e'],
+      hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#f4b619'],
       hoverBorderColor: "rgba(234, 236, 244, 1)",
     }],
   },
