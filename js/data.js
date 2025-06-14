@@ -42,3 +42,24 @@ var users = [
   { id: 4, email: 'auditor@orga.com', password: 'auditor', firstName: 'Ann', lastName: 'Auditor', orgId: 1, role: 'Auditor' },
   { id: 5, email: 'admin@orgb.com', password: 'admin', firstName: 'Bob', lastName: 'Admin', orgId: 2, role: 'Admin' }
 ];
+
+function loadDemoData() {
+  return fetch('data/demo-data.txt')
+    .then(function (response) { return response.text(); })
+    .then(function (text) {
+      try {
+        var data = JSON.parse(text);
+        if (data.organizations) organizations = data.organizations;
+        if (data.roles) roles = data.roles;
+        if (data.categories) categories = data.categories;
+        if (data.transactions) transactions = data.transactions;
+        if (data.budgets) budgets = data.budgets;
+        if (data.users) users = data.users;
+      } catch (e) {
+        console.error('Failed to parse demo-data.txt', e);
+      }
+    })
+    .catch(function (err) {
+      console.warn('Could not load demo-data.txt', err);
+    });
+}
