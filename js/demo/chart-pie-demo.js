@@ -5,6 +5,7 @@ Chart.defaults.global.defaultFontColor = '#858796';
 var pieChart;
 function renderPieChart(dataSet){
   var ctx = document.getElementById("myPieChart");
+  if(!ctx) return;
   if(pieChart) pieChart.destroy();
   var orgCategories = categories.filter(function(c){return c.orgId === currentUser.orgId;});
   var categoryLabels = orgCategories.map(function(c){return c.name;});
@@ -44,7 +45,7 @@ function renderPieChart(dataSet){
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-  if (typeof transactions !== 'undefined' && typeof currentUser !== 'undefined') {
+  if (document.getElementById('myPieChart') && typeof transactions !== 'undefined' && typeof currentUser !== 'undefined') {
     var data = transactions.filter(function(t){return t.orgId === currentUser.orgId;});
     renderPieChart(data);
   }

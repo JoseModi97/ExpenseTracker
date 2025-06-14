@@ -30,6 +30,7 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 var areaChart;
 function renderAreaChart(dataSet) {
   var ctx = document.getElementById("myAreaChart");
+  if (!ctx) return;
   if (areaChart) areaChart.destroy();
   var monthTotals = new Array(12).fill(0);
   dataSet.forEach(function(t){
@@ -126,7 +127,7 @@ function renderAreaChart(dataSet) {
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-  if (typeof transactions !== 'undefined' && typeof currentUser !== 'undefined') {
+  if (document.getElementById('myAreaChart') && typeof transactions !== 'undefined' && typeof currentUser !== 'undefined') {
     var data = transactions.filter(function(t){return t.orgId === currentUser.orgId;});
     renderAreaChart(data);
   }

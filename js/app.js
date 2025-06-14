@@ -63,7 +63,10 @@ function renderCategories() {
 }
 
 function renderTransactions(data) {
-  var tbody = document.querySelector('#transactionTable tbody');
+  var tbodyParent = document.querySelector('#transactionTable');
+  if (!tbodyParent) return;
+  var tbody = tbodyParent.querySelector('tbody');
+  if (!tbody) return;
   tbody.innerHTML = '';
   (data || transactions).filter(function(t){return t.orgId === currentUser.orgId;}).forEach(function (t) {
     var tr = document.createElement('tr');
@@ -150,9 +153,22 @@ function deleteCategory(id) {
 }
 
 function applyFilters() {
-  var startVal = document.getElementById('filterStart').value;
-  var endVal = document.getElementById('filterEnd').value;
-  var catVal = document.getElementById('filterCategory').value;
+  var startEl = document.getElementById('filterStart');
+  var endEl = document.getElementById('filterEnd');
+  var catEl = document.getElementById('filterCategory');
+
+  if (!startEl || !endEl || !catEl) {
+    // When filtering UI is absent just refresh charts and tables if present
+    renderTransactions();
+    renderAreaChart(transactions.filter(function(t){return t.orgId === currentUser.orgId;}));
+    renderPieChart(transactions.filter(function(t){return t.orgId === currentUser.orgId;}));
+    updateSummary();
+    return;
+  }
+
+  var startVal = startEl.value;
+  var endVal = endEl.value;
+  var catVal = catEl.value;
   var start = startVal ? new Date(startVal) : null;
   var end = endVal ? new Date(endVal) : null;
   var cat = catVal ? parseInt(catVal) : null;
@@ -177,9 +193,12 @@ function updateSummary(data) {
   var monthKey = now.toISOString().slice(0,7);
   var monthTotal = data.filter(function(t){return t.date.slice(0,7) === monthKey;})
     .reduce(function(s, t){return s + t.amount;}, 0);
-  document.getElementById('totalExpenses').textContent = '$' + total.toFixed(2);
-  document.getElementById('monthExpenses').textContent = '$' + monthTotal.toFixed(2);
-  document.getElementById('transactionCount').textContent = data.length;
+  var totalEl = document.getElementById('totalExpenses');
+  var monthEl = document.getElementById('monthExpenses');
+  var countEl = document.getElementById('transactionCount');
+  if (totalEl) totalEl.textContent = '$' + total.toFixed(2);
+  if (monthEl) monthEl.textContent = '$' + monthTotal.toFixed(2);
+  if (countEl) countEl.textContent = data.length;
 }
 
 function checkBudgets(date, categoryId) {
@@ -198,11 +217,13 @@ function checkBudgets(date, categoryId) {
 }
 
 function exportCsv() {
+  var table = document.querySelector('#transactionTable');
+  if (!table) return;
   var rows = [['Date', 'Category', 'Amount']];
-  var tbody = document.querySelector('#transactionTable tbody').children;
+  var tbody = table.querySelector('tbody').children;
   for (var i = 0; i < tbody.length; i++) {
     var cells = tbody[i].children;
-    rows.push([cells[0].textContent, cells[1].textContent, cells[2].textContent]);
+    rows.push([cells[0].textContent, cells[2].textContent, cells[3].textContent]);
   }
   var csvContent = rows.map(function (r) { return r.join(','); }).join('\n');
   var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
