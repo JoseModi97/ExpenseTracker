@@ -17,13 +17,19 @@ function saveData() {
 
 function renderCategoryOptions() {
   var select = document.getElementById('transCategory');
-  if (!select) return;
-  select.innerHTML = '';
+  var filterSelect = document.getElementById('filterCategory');
+  if (select) {
+    select.innerHTML = '';
+  }
+  if (filterSelect) {
+    filterSelect.innerHTML = '<option value="">All Categories</option>';
+  }
   categories.filter(function(c){return c.orgId === currentUser.orgId;}).forEach(function (c) {
     var opt = document.createElement('option');
     opt.value = c.id;
     opt.textContent = c.name;
-    select.appendChild(opt);
+    if (select) select.appendChild(opt.cloneNode(true));
+    if (filterSelect) filterSelect.appendChild(opt);
   });
 }
 
@@ -138,18 +144,34 @@ function deleteCategory(id) {
 function applyFilters() {
   var startVal = document.getElementById('filterStart').value;
   var endVal = document.getElementById('filterEnd').value;
+  var catVal = document.getElementById('filterCategory').value;
   var start = startVal ? new Date(startVal) : null;
   var end = endVal ? new Date(endVal) : null;
+  var cat = catVal ? parseInt(catVal) : null;
   var filtered = transactions.filter(function (t) {
     if (t.orgId !== currentUser.orgId) return false;
     var tDate = new Date(t.date);
     if (start && tDate < start) return false;
     if (end && tDate > end) return false;
+    if (cat && t.category !== cat) return false;
     return true;
   });
   renderTransactions(filtered);
   renderAreaChart(filtered);
   renderPieChart(filtered);
+  updateSummary(filtered);
+}
+
+function updateSummary(data) {
+  data = data || transactions.filter(function(t){return t.orgId === currentUser.orgId;});
+  var total = data.reduce(function(s, t){return s + t.amount;}, 0);
+  var now = new Date();
+  var monthKey = now.toISOString().slice(0,7);
+  var monthTotal = data.filter(function(t){return t.date.slice(0,7) === monthKey;})
+    .reduce(function(s, t){return s + t.amount;}, 0);
+  document.getElementById('totalExpenses').textContent = '$' + total.toFixed(2);
+  document.getElementById('monthExpenses').textContent = '$' + monthTotal.toFixed(2);
+  document.getElementById('transactionCount').textContent = data.length;
 }
 
 function checkBudgets(date, categoryId) {
@@ -185,6 +207,17 @@ function exportCsv() {
   document.body.removeChild(link);
 }
 
+function resetData() {
+  localStorage.removeItem('transactions');
+  localStorage.removeItem('categories');
+  loadDemoData().then(function(){
+    initData();
+    renderCategoryOptions();
+    renderCategories();
+    applyFilters();
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   loadDemoData().then(function(){
     initData();
@@ -216,6 +249,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('applyFilter').addEventListener('click', applyFilters);
     document.getElementById('exportCsv').addEventListener('click', exportCsv);
+    var resetBtn = document.getElementById('resetData');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', resetData);
+    }
   });
 });
 

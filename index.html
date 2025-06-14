@@ -43,6 +43,32 @@
                     </ul>
                 </nav>
                 <div class="container-fluid">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Expenses</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalExpenses">$0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">This Month</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="monthExpenses">$0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Transactions</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="transactionCount">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-xl-8 col-lg-7">
                             <div class="card shadow mb-4">
@@ -83,8 +109,10 @@
                             <div class="form-inline mb-3">
                                 <input type="date" class="form-control mr-sm-2 mb-2" id="filterStart">
                                 <input type="date" class="form-control mr-sm-2 mb-2" id="filterEnd">
+                                <select id="filterCategory" class="form-control mr-sm-2 mb-2"></select>
                                 <button type="button" class="btn btn-secondary mb-2" id="applyFilter">Filter</button>
                                 <button type="button" class="btn btn-outline-secondary mb-2 ml-sm-2" id="exportCsv">Export CSV</button>
+                                <button type="button" class="btn btn-outline-danger mb-2 ml-sm-2" id="resetData">Reset Data</button>
                             </div>
                         </div>
                     </div>
