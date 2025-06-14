@@ -52,7 +52,7 @@ function renderTransactions(data) {
   (data || transactions).forEach(function (t) {
     var tr = document.createElement('tr');
     var tdDate = document.createElement('td');
-    tdDate.textContent = t.date;
+    tdDate.textContent = new Date(t.date).toLocaleDateString();
     var tdCat = document.createElement('td');
     var cat = categories.find(function (c) { return c.id === t.category; });
     tdCat.textContent = cat ? cat.name : '';
@@ -106,11 +106,14 @@ function deleteCategory(id) {
 }
 
 function applyFilters() {
-  var start = document.getElementById('filterStart').value;
-  var end = document.getElementById('filterEnd').value;
+  var startVal = document.getElementById('filterStart').value;
+  var endVal = document.getElementById('filterEnd').value;
+  var start = startVal ? new Date(startVal) : null;
+  var end = endVal ? new Date(endVal) : null;
   var filtered = transactions.filter(function (t) {
-    if (start && t.date < start) return false;
-    if (end && t.date > end) return false;
+    var tDate = new Date(t.date);
+    if (start && tDate < start) return false;
+    if (end && tDate > end) return false;
     return true;
   });
   renderTransactions(filtered);
