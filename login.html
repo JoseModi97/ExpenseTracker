@@ -100,6 +100,10 @@
     <script src="js/data.js"></script>
     <script src="js/auth.js"></script>
     <script>
+        // Prefill demo credentials
+        document.getElementById('loginEmail').value = users[0].email;
+        document.getElementById('loginPassword').value = users[0].password;
+
         document.getElementById('loginForm').addEventListener('submit', function (e) {
             e.preventDefault();
             login(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
