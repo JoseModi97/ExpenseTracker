@@ -250,7 +250,8 @@ function renderUsers() {
   var tbody = document.getElementById('usersBody');
   if (!tbody) return;
   tbody.innerHTML = '';
-  users.filter(function(u){ return u.orgId === currentUser.orgId; }).forEach(function(u){
+  // Display every user in the system for demo purposes
+  users.forEach(function(u){
     var tr = document.createElement('tr');
     var tdName = document.createElement('td');
     tdName.textContent = u.firstName + ' ' + u.lastName;
