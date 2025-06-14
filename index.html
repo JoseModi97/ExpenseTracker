@@ -26,6 +26,16 @@
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
+            <li class="nav-item" id="navBudgets">
+                <a class="nav-link" href="budgets.html">
+                    <i class="fas fa-wallet"></i>
+                    <span>Budgets</span></a>
+            </li>
+            <li class="nav-item" id="navUsers">
+                <a class="nav-link" href="users.html">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span></a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="#" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i>
@@ -171,6 +181,14 @@
     <script src="js/data.js"></script>
     <script src="js/auth.js"></script>
     <script>requireAuth();
+    if (currentUser.role !== 'Admin') {
+        var nu = document.getElementById('navUsers');
+        if (nu) nu.style.display = 'none';
+    }
+    if (!(currentUser.role === 'Admin' || currentUser.role === 'Manager')) {
+        var nb = document.getElementById('navBudgets');
+        if (nb) nb.style.display = 'none';
+    }
     if (currentUser.role === 'Auditor') {
         document.addEventListener('DOMContentLoaded', function(){
             var f = document.getElementById('transactionForm');

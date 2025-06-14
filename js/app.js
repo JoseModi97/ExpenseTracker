@@ -8,10 +8,18 @@ function initData() {
   if (localStorage.getItem('categories')) {
     categories = JSON.parse(localStorage.getItem('categories'));
   }
+  if (localStorage.getItem("users")) {
+    users = JSON.parse(localStorage.getItem("users"));
+  }
+  if (localStorage.getItem("budgets")) {
+    budgets = JSON.parse(localStorage.getItem("budgets"));
+  }
 }
 
 function saveData() {
   localStorage.setItem('transactions', JSON.stringify(transactions));
+  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem("budgets", JSON.stringify(budgets));
   localStorage.setItem('categories', JSON.stringify(categories));
 }
 
@@ -217,6 +225,81 @@ function resetData() {
     applyFilters();
   });
 }
+function renderUsers() {
+  var tbody = document.getElementById('usersBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  users.filter(function(u){ return u.orgId === currentUser.orgId; }).forEach(function(u){
+    var tr = document.createElement('tr');
+    var tdName = document.createElement('td');
+    tdName.textContent = u.firstName + ' ' + u.lastName;
+    var tdEmail = document.createElement('td');
+    tdEmail.textContent = u.email;
+    var tdRole = document.createElement('td');
+    if (currentUser.role === 'Admin') {
+      var sel = document.createElement('select');
+      sel.className = 'form-control form-control-sm';
+      roles.forEach(function(r){
+        var opt = document.createElement('option');
+        opt.value = r;
+        opt.textContent = r;
+        if (r === u.role) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', function(){
+        u.role = this.value;
+        saveData();
+        renderUsers();
+      });
+      tdRole.appendChild(sel);
+    } else {
+      tdRole.textContent = u.role;
+    }
+    tr.appendChild(tdName);
+    tr.appendChild(tdEmail);
+    tr.appendChild(tdRole);
+    tbody.appendChild(tr);
+  });
+}
+
+function renderBudgets() {
+  var mInput = document.getElementById('monthlyBudget');
+  var body = document.getElementById('budgetBody');
+  if (!mInput || !body) return;
+  var b = budgets[currentUser.orgId] || {monthly:0, categories:{}};
+  mInput.value = b.monthly;
+  body.innerHTML = '';
+  categories.filter(function(c){return c.orgId === currentUser.orgId;}).forEach(function(c){
+    var tr = document.createElement('tr');
+    var td1 = document.createElement('td');
+    td1.textContent = c.name;
+    var td2 = document.createElement('td');
+    var inp = document.createElement('input');
+    inp.type = 'number';
+    inp.step = '0.01';
+    inp.className = 'form-control form-control-sm budget-cat';
+    inp.setAttribute('data-id', c.id);
+    inp.value = b.categories[c.id] || 0;
+    td2.appendChild(inp);
+    tr.appendChild(td1);
+    tr.appendChild(td2);
+    body.appendChild(tr);
+  });
+}
+
+function saveBudgetsForm(e) {
+  e.preventDefault();
+  var b = budgets[currentUser.orgId] || {monthly:0, categories:{}};
+  b.monthly = parseFloat(document.getElementById('monthlyBudget').value) || 0;
+  var cats = {};
+  document.querySelectorAll('.budget-cat').forEach(function(inp){
+    cats[parseInt(inp.getAttribute('data-id'))] = parseFloat(inp.value) || 0;
+  });
+  b.categories = cats;
+  budgets[currentUser.orgId] = b;
+  saveData();
+  alert('Budgets saved');
+}
 
 document.addEventListener('DOMContentLoaded', function () {
   loadDemoData().then(function(){
@@ -225,6 +308,8 @@ document.addEventListener('DOMContentLoaded', function () {
     renderCategories();
     applyFilters();
 
+    renderUsers();
+    renderBudgets();
     var transForm = document.getElementById('transactionForm');
     if (transForm) {
       transForm.addEventListener('submit', function (e) {
@@ -250,6 +335,10 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('applyFilter').addEventListener('click', applyFilters);
     document.getElementById('exportCsv').addEventListener('click', exportCsv);
     var resetBtn = document.getElementById('resetData');
+    var budgetForm = document.getElementById("budgetForm");
+    if (budgetForm) {
+      budgetForm.addEventListener("submit", saveBudgetsForm);
+    }
     if (resetBtn) {
       resetBtn.addEventListener('click', resetData);
     }
