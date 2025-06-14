@@ -15,6 +15,16 @@ var transactions = [
   { id: 6, date: '2023-02-10', category: 4, amount: 80 },
 ];
 
+var budgets = {
+  monthly: 2000,
+  categories: {
+    1: 1500,
+    2: 500,
+    3: 200,
+    4: 300
+  }
+};
+
 var users = [
   { email: 'admin@example.com', password: 'admin' }
 ];
