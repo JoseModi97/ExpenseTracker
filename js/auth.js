@@ -17,7 +17,8 @@ function signup(firstName, lastName, email, password) {
     alert('User already exists');
     return;
   }
-  users.push({ email: email, password: password, firstName: firstName, lastName: lastName, orgId: 1, role: 'Employee' });
+  var id = users.length ? users[users.length - 1].id + 1 : 1;
+  users.push({ id: id, email: email, password: password, firstName: firstName, lastName: lastName, orgId: 1, role: 'Employee' });
   alert('Account created. Please login.');
   window.location.href = 'login.html';
 }

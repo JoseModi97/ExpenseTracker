@@ -55,6 +55,9 @@ function renderTransactions(data) {
     var tr = document.createElement('tr');
     var tdDate = document.createElement('td');
     tdDate.textContent = new Date(t.date).toLocaleDateString();
+    var tdUser = document.createElement('td');
+    var usr = users.find(function(u){return u.id === t.userId;});
+    tdUser.textContent = usr ? (usr.firstName + ' ' + usr.lastName) : '';
     var tdCat = document.createElement('td');
     var cat = categories.find(function (c) { return c.id === t.category; });
     tdCat.textContent = cat ? cat.name : '';
@@ -83,6 +86,7 @@ function renderTransactions(data) {
       tdDel.appendChild(rejBtn);
     }
     tr.appendChild(tdDate);
+    tr.appendChild(tdUser);
     tr.appendChild(tdCat);
     tr.appendChild(tdAmt);
     tr.appendChild(tdStatus);
@@ -93,7 +97,7 @@ function renderTransactions(data) {
 
 function addTransaction(date, categoryId, amount) {
   var id = transactions.length ? transactions[transactions.length - 1].id + 1 : 1;
-  transactions.push({ id: id, orgId: currentUser.orgId, date: date, category: parseInt(categoryId), amount: parseFloat(amount), status: 'pending' });
+  transactions.push({ id: id, userId: currentUser.id, orgId: currentUser.orgId, date: date, category: parseInt(categoryId), amount: parseFloat(amount), status: 'pending' });
   saveData();
   checkBudgets(date, categoryId);
   applyFilters();
